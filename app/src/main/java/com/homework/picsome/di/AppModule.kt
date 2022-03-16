@@ -7,6 +7,7 @@ import com.homework.picsome.data.DefaultImageRepository
 import com.homework.picsome.data.ImageRepository
 import com.homework.picsome.data.db.ImageDao
 import com.homework.picsome.data.db.ImageRoomDatabase
+import com.homework.picsome.data.db.PageKeyDao
 import com.homework.picsome.data.network.ImageService
 import dagger.Module
 import dagger.Provides
@@ -59,9 +60,16 @@ object AppModule {
         imageRoomDatabase: ImageRoomDatabase
     ) : ImageDao = imageRoomDatabase.imageDao()
 
+    @Singleton
+    @Provides
+    fun providesPageKeyDao(
+        imageRoomDatabase: ImageRoomDatabase
+    ) : PageKeyDao = imageRoomDatabase.pageKeyDao()
+
     @Provides
     fun providesImageRepository(
         imageDao: ImageDao,
+        pageKeyDao: PageKeyDao,
         imageService: ImageService
-    ): ImageRepository = DefaultImageRepository(imageDao, imageService)
+    ): ImageRepository = DefaultImageRepository(imageDao, pageKeyDao, imageService)
 }

@@ -23,9 +23,8 @@ class MainActivity : AppCompatActivity() {
 
         model.imageData.observe(this) { imageData ->
             val state = binding.rvImageList.layoutManager?.onSaveInstanceState()
-            binding.rvImageList.adapter = ImageListAdapter(imageData) {
-                model.getImages()
-            }
+            binding.rvImageList.adapter =
+                ImageListAdapter(imageData, onItemClick = { model.refresh() })
             binding.rvImageList.layoutManager?.onRestoreInstanceState(state)
         }
     }

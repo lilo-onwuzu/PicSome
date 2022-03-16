@@ -5,15 +5,17 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.homework.picsome.data.model.ImageItem
+import com.homework.picsome.data.model.PageKey
 
 @Database(
-    entities = [ImageItem::class],
+    entities = [ImageItem::class, PageKey::class],
     version = 1,
     exportSchema = false
 )
 abstract class ImageRoomDatabase : RoomDatabase() {
 
     abstract fun imageDao() : ImageDao
+    abstract fun pageKeyDao() : PageKeyDao
 
     companion object {
         @Volatile

@@ -10,8 +10,6 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import kotlin.math.floor
-import kotlin.math.roundToInt
 
 @HiltViewModel
 class MainViewModel @Inject constructor (
@@ -23,24 +21,21 @@ class MainViewModel @Inject constructor (
         get() = _imageData
 
     init {
-        getImages()
-    }
-
-    fun getImages() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                _imageData.postValue(getRandomImages(repository.getImages()))
+                refresh()
             }
         }
     }
 
-    private fun getRandomImages(fullList: List<ImageItem>): List<ImageItem> {
-        val newList = mutableListOf<ImageItem>()
-        for (i in 0..2) {
-            val index = (floor(Math.random()*fullList.size)).roundToInt()
-            newList.add(fullList[index])
+    fun refresh() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val current = repository.getCurrentBatch()
+                _imageData.postValue(current)
+                repository.removeDisplayedFromDb(current)
+            }
         }
-        return newList
     }
 
     fun getDateAndTime()
