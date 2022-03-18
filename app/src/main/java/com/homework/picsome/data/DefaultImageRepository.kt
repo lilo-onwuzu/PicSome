@@ -1,6 +1,6 @@
 package com.homework.picsome.data
 
- import com.homework.picsome.data.db.ImageDao
+import com.homework.picsome.data.db.ImageDao
 import com.homework.picsome.data.db.PageKeyDao
 import com.homework.picsome.data.model.ImageItem
 import com.homework.picsome.data.model.PageKey
@@ -37,11 +37,11 @@ class DefaultImageRepository @Inject constructor(
         val list = mutableListOf<ImageItem>()
         if (pageList.size >= PAGE_LIMIT) return emptyList()
         for (i in 1..BATCH_SIZE) {
-            var page = 1
+            var page = generateRandomKey()
             while (pageList.contains(page))
                 page = generateRandomKey()
-            list.addAll(fetchImagesFromService(page))
             pageKeyDao.useKey(PageKey(page))
+            list.addAll(fetchImagesFromService(page))
         }
         return list
     }

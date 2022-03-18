@@ -1,5 +1,6 @@
 package com.homework.picsome.ui
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class ImageListAdapter(
+    private val context: Context,
     private val imageData: List<ImageItem>,
     private val onItemClick : () -> Unit
 ) : RecyclerView.Adapter<ImageListAdapter.ViewHolder>() {
@@ -21,7 +23,7 @@ class ImageListAdapter(
     private lateinit var binding: CellImageViewBinding
     private val requestOptions = RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL)
     private val glide : RequestManager
-        get() = Glide.with(binding.root.context).apply { requestOptions }
+        get() = Glide.with(context).apply { requestOptions }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         binding = CellImageViewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -39,6 +41,16 @@ class ImageListAdapter(
     inner class ViewHolder(
         private val binding: CellImageViewBinding
     ): RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            preloadImages()
+        }
+
+        private fun preloadImages() {
+            for (image in imageData) {
+                glide.load(image.download_url).preload()
+            }
+        }
 
         fun bindImageDetails(image : ImageItem) {
             try {

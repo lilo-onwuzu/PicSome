@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId "com.homework.picsome"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
@@ -90,6 +90,11 @@ dependencies {
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'androidx.test:core:1.4.0'
+    testImplementation 'androidx.test:core-ktx:1.4.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    testImplementation "org.mockito:mockito:core:2.8.0"
+    testImplementation "org.mockito:mockito-kotlin:4.4.1"
+    testImplementation "io.mockk:mockk:4.0.0"
 }
