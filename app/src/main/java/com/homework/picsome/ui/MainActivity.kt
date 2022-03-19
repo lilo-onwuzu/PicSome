@@ -5,15 +5,18 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.RequestManager
 import com.homework.picsome.databinding.ActivityMainBinding
 import com.homework.picsome.viewModel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val model : MainViewModel by viewModels()
+    @Inject lateinit var glideRequestManager: RequestManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +35,7 @@ class MainActivity : AppCompatActivity() {
                 val state = binding.rvImageList.layoutManager?.onSaveInstanceState()
                 binding.rvImageList.adapter =
                     ImageListAdapter(
-                        applicationContext,
+                        glideRequestManager,
                         imageData,
                         onItemClick = { model.refresh() })
                 binding.rvImageList.layoutManager?.onRestoreInstanceState(state)

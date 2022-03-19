@@ -1,6 +1,10 @@
 package com.homework.picsome.di
 
 import android.content.Context
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.gson.GsonBuilder
 import com.homework.picsome.BuildConfig
 import com.homework.picsome.data.DefaultImageRepository
@@ -72,4 +76,13 @@ object AppModule {
         pageKeyDao: PageKeyDao,
         imageService: ImageService
     ): ImageRepository = DefaultImageRepository(imageDao, pageKeyDao, imageService)
+
+    @Singleton
+    @Provides
+    fun providesGlideRequestManager(
+        @ApplicationContext context: Context
+    ): RequestManager {
+        val requestOptions = RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL)
+        return Glide.with(context).applyDefaultRequestOptions(requestOptions)
+    }
 }
