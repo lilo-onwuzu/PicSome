@@ -12,15 +12,20 @@ import java.util.*
 
 class ImageListAdapter(
     private val glideRequestManager: RequestManager,
-    private val imageData: List<ImageItem>,
-    private val onItemClick : () -> Unit
+    private val imageData: List<ImageItem>
 ) : RecyclerView.Adapter<ImageListAdapter.ViewHolder>() {
+
+    private lateinit var onItemClick : () -> Unit
 
     init {
         preloadImages()
     }
 
     private lateinit var binding: CellImageViewBinding
+
+    fun doOnClick(onItemClick: () -> Unit) {
+        this.onItemClick = onItemClick
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         binding = CellImageViewBinding.inflate(LayoutInflater.from(parent.context), parent, false)

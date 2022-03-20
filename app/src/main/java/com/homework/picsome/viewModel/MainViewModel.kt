@@ -21,9 +21,11 @@ class MainViewModel @Inject constructor (
     private val repository: ImageRepository
 ): ViewModel() {
 
-    private val _imageData = MutableLiveData<List<ImageItem>>()
-    val imageData : LiveData<List<ImageItem>>
-        get() = _imageData
+    private val _imageOrStateData = MutableLiveData<Pair<Boolean, List<ImageItem>>>()
+    val imageOrStateData : LiveData<Pair<Boolean, List<ImageItem>>>
+        get() = _imageOrStateData
+
+    private var isConnected: Boolean = true
 
     init {
         viewModelScope.launch {
@@ -36,14 +38,12 @@ class MainViewModel @Inject constructor (
     fun refresh() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val current = repository.getCurrentBatch()
-                _imageData.postValue(current)
-                repository.removeDisplayedFromDb(current)
+                _imageOrStateData.postValue(Pair(isConnected, repository.getNextSet()))
             }
         }
     }
 
-    fun registerNetworkListener(context: Context, onAvailable: () -> Unit, onLost: () -> Unit ) {
+    fun registerNetworkListener(context: Context) {
         val networkRequest = NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
@@ -52,18 +52,20 @@ class MainViewModel @Inject constructor (
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                onAvailable()
+                isConnected = true
+                _imageOrStateData.postValue(Pair(isConnected, emptyList()))
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                onLost()
+                isConnected = false
+                _imageOrStateData.postValue(Pair(isConnected, emptyList()))
             }
         }
 
         val connectivityManager = context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-        if (!isNetworkAvailable(connectivityManager)) onLost()
         connectivityManager.requestNetwork(networkRequest, networkCallback)
+        isConnected = isNetworkAvailable(connectivityManager)
     }
 
     private fun isNetworkAvailable(connectivityManager: ConnectivityManager): Boolean {

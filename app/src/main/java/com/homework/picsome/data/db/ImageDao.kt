@@ -8,8 +8,8 @@ interface ImageDao {
     @Query("SELECT * FROM image_table")
     suspend fun getAll(): List<ImageItem>
 
-    @Query("SELECT * FROM image_table LIMIT :batchSize")
-    suspend fun getCurrentBatch(batchSize: Int): List<ImageItem>
+    @Query("SELECT * FROM image_table LIMIT :setSize")
+    suspend fun getCurrentSet(setSize: Int): List<ImageItem>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(images: List<ImageItem>)

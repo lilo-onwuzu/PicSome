@@ -11,7 +11,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 
 const val PAGE_LIMIT = 993
-const val BATCH_SIZE = 3
+const val SET_SIZE = 3
 
 class DefaultImageRepository @Inject constructor(
     private val imageDao: ImageDao,
@@ -19,24 +19,21 @@ class DefaultImageRepository @Inject constructor(
     private val imageService: ImageService
 ) : ImageRepository {
 
-    override suspend fun getCurrentBatch(): List<ImageItem> {
-        pullNextBatch()
-        return imageDao.getCurrentBatch(BATCH_SIZE)
-    }
-
-    override suspend fun removeDisplayedFromDb(displayed: List<ImageItem>) {
-        imageDao.deleteDisplayed(displayed)
-    }
-
-    private suspend fun pullNextBatch() {
-        imageDao.insert(fetchNextSet())
+    override suspend fun getNextSet(): List<ImageItem> {
+        val nextSet = fetchNextSet()
+        val currentSet = imageDao.getCurrentSet(SET_SIZE)
+        if (nextSet.isNotEmpty()) {
+            imageDao.deleteDisplayed(currentSet)
+            imageDao.insert(nextSet)
+        }
+        return imageDao.getCurrentSet(SET_SIZE)
     }
 
     private suspend fun fetchNextSet(): List<ImageItem> {
         val pageList = getUsedPageKeys()
         val list = mutableListOf<ImageItem>()
         if (pageList.size >= PAGE_LIMIT) return emptyList()
-        for (i in 1..BATCH_SIZE) {
+        for (i in 1..SET_SIZE) {
             var page = generateRandomKey()
             while (pageList.contains(page))
                 page = generateRandomKey()
@@ -45,9 +42,6 @@ class DefaultImageRepository @Inject constructor(
         }
         return list
     }
-
-    private suspend fun getUsedPageKeys() : List<Int>
-        = pageKeyDao.getAll().map { it.id }
 
     private fun fetchImagesFromService(page: Int): List<ImageItem> {
         try {
@@ -59,6 +53,9 @@ class DefaultImageRepository @Inject constructor(
         }
         return listOf()
     }
+
+    private suspend fun getUsedPageKeys() : List<Int>
+            = pageKeyDao.getAll().map { it.id }
 
     private fun generateRandomKey() : Int
             = (floor(Math.random()* PAGE_LIMIT)).roundToInt()
